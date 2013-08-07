@@ -9,9 +9,9 @@
  *     HashConfiguration
  */
 
-#include "include/logger.hpp"
-#include "include/daemon_logger.hpp"
-#include "include/configuration.hpp"
-#include "include/hash_configuration.hpp"
+#include "common/include/logger.hpp"
+#include "common/include/daemon_logger.hpp"
+#include "common/include/configuration.hpp"
+#include "common/include/hash_configuration.hpp"
 
 #endif /* _RAINLABS_COMMON_H */
