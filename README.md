@@ -3,6 +3,8 @@ cpp-everyday
 
 C++ classes for use everyday
 
+*README in progress...*
+
 ## common classes
 
 Include all: `#include "common.hpp"`
@@ -32,3 +34,23 @@ Common class for logging messages with 4 log levels: INFO, WARNING, ERROR, DEBUG
 ### DaemonLogger
 
 Class for logging long time (extend *Logger*). Created path for every day, when program running and place in this path target log file.
+
+## Simple example
+
+```
+#include <iostream>
+#include "common.hpp"
+
+int main(int argc, char** argv)
+{
+    rainlabs::DaemonLogger log("data");
+    //log.enableDebug(true);
+    rainlabs::HashConfiguration<int, atoi> simple_config("data/config.txt", &log);
+    simple_config.load();
+    log.info("test message");
+    log.warning("warn text");
+    printf("bla: %i\n", simple_config["bla"]);
+    getchar();
+    return 0;
+}
+```
