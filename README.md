@@ -13,6 +13,7 @@ Include all: `#include "common.hpp"`
 * HashConfiguration `#include "common/include/hash_configuration.hpp"`
 * Logger `#include "common/include/logger.hpp"`
 * DaemonLogger `#include "common/include/daemon_logger.hpp"`
+* Singleton `#include "common/include/singleton.hpp"`
 
 **Don't forget add *.cpp files to your Makefile**
 
@@ -35,6 +36,10 @@ Common class for logging messages with 4 log levels: INFO, WARNING, ERROR, DEBUG
 
 Class for logging long time (extend *Logger*). Created path for every day, when program running and place in this path target log file.
 
+### Singleton
+
+Simple template of Singleton. 
+
 ## Simple example
 
 ```
@@ -51,6 +56,41 @@ int main(int argc, char** argv)
     log.warning("warn text");
     printf("bla: %i\n", simple_config["bla"]);
     getchar();
+    return 0;
+}
+```
+
+## Using template "Singleton"
+
+```
+#include "cpp-everyday/common.hpp"
+
+class SomeClass : public rainlabs::Singleton<SomeClass>
+{
+public:
+
+    /**
+     * ...
+     * some code
+     */
+
+protected:
+
+    /**
+     * ...
+     * some code
+     */
+
+    friend class rainlabs::Singleton <SomeClass>;
+private:
+    SomeClass();
+    ~SomeClass();
+};
+
+
+int main(int* argc, char** argv)
+{
+    SomeClass::getInstance()->someMethod();
     return 0;
 }
 ```
