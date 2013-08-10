@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef _RAINLABS_ASSOC_CONFIGURATION_H
-#define _RAINLABS_ASSOC_CONFIGURATION_H
+#ifndef _RAINLABS_HASH_CONFIGURATION_H
+#define _RAINLABS_HASH_CONFIGURATION_H
 
 #include <string>
 #include <map>
@@ -128,4 +128,4 @@ namespace rainlabs
     };
 
 }
-#endif /* _RAINLABS_ASSOC_CONFIGURATION_H */
+#endif /* _RAINLABS_HASH_CONFIGURATION_H */
