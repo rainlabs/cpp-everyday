@@ -18,8 +18,11 @@
 
 namespace rainlabs
 {
-
-    template< typename T, T (* func)(const char *) >
+    /**
+     * @param T hash value type or std::string by default
+     * @param func converter from char* to T or nullptr by default
+     */
+    template< typename T = std::string, T (* func)(const char *) = nullptr >
     class HashConfiguration : public Configuration< char * >
     {
     public:
@@ -32,12 +35,25 @@ namespace rainlabs
          * @param char * key
          * @return value_type value
          */
-        T operator[](char * key_I)
+        T get(char * key_I)
         {
             auto iFind = mHashValues.find( key_I );
-            if (iFind == mHashValues.end())
-                return (T) -1;
+            if (iFind == mHashValues.end()) {
+                T result; // create and return fake struct
+                mLog->error( logMessage(("record not found with key: " + std::string(key_I)).c_str()) );
+                return result;
+            }
             return iFind->second;
+        }
+
+        /**
+         * ALTERNATIVE: Get hash value at key
+         * @param char * key
+         * @return value_type value
+         */
+        T operator[](char * key_I)
+        {
+            return get(key_I);
         }
 
         /**
@@ -66,12 +82,15 @@ namespace rainlabs
         /**
          * @protected
          * convert from string to needed value type
+         * if "func" is not defined, be sure to "T" have constructor with char * value 
          * @param char * value from file
          * @return value_type value in needed type
          */
         T convertToParameter(const char * value_I) const
         {
-            return func(value_I);
+            if(func != nullptr)
+                return func(value_I);
+            return T(value_I); // call T-constructor to get correct T-object
         }
         /**
          * @Override
