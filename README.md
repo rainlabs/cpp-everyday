@@ -3,6 +3,8 @@ cpp-everyday
 
 C++ classes for use everyday
 
+## init active record classes
+
 *README in progress...*
 
 ## common classes
