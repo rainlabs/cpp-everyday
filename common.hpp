@@ -10,10 +10,10 @@
  *     template of Singleton
  */
 
-#include "common/include/logger.hpp"
-#include "common/include/daemon_logger.hpp"
-#include "common/include/configuration.hpp"
-#include "common/include/hash_configuration.hpp"
-#include "common/include/singleton.hpp"
+#include "common/logger.hpp"
+#include "common/daemon_logger.hpp"
+#include "common/configuration.hpp"
+#include "common/hash_configuration.hpp"
+#include "common/singleton.hpp"
 
 #endif /* _RAINLABS_COMMON_H */
