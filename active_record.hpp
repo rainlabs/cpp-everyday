@@ -5,9 +5,9 @@
  * include active record classes:
  */
 
-#include "active_record/include/exception.hpp"
-#include "active_record/include/driver.hpp"
-#include "active_record/include/postgre_driver.hpp"
-#include "active_record/include/model.hpp"
+#include "active_record/exception.hpp"
+#include "active_record/adapter.hpp"
+#include "active_record/postgre_adapter.hpp"
+#include "active_record/model.hpp"
 
 #endif /* _RAINLABS_ACTIVE_RECORD_H */
