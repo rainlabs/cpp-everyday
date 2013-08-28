@@ -29,7 +29,12 @@ namespace ActiveRecord
             mIsNew = true;
             mCommitFlag = true;
         }
-        virtual ~Model() {};
+
+        virtual ~Model()
+        {
+            mAttributes.clear();
+        }
+
         static T* create(std::map<std::string, std::string> attributes_I)
         {
             T* model = new T();
@@ -71,6 +76,44 @@ namespace ActiveRecord
             return model;
         }
 
+        static std::vector<T*> where(std::map<std::string, std::string> where_I)
+        {
+            std::vector< std::map<std::string, std::string> > values;
+            std::vector< T* > result;
+            T* tmp = new T();
+            values = tmp->mAdapter->get(tmp->getTableName(), where_I);
+
+            for(auto it = values.begin(); it != values.end(); it++) {
+                tmp = new T( *it );
+                result.push_back( tmp );
+            }
+            return result;
+        }
+
+        /**
+          * TODO
+          * get all records from table
+          */
+        static std::vector<T*> all()
+        {
+            std::map<std::string, std::string> blankWhere = {};
+            return where(blankWhere);
+        }
+
+        /**
+          * truncate table
+          */
+        static void destroyAll()
+        {
+            T* tmp = new T();
+            std::map<std::string, std::string> blankWhere = {};
+
+            tmp->mAdapter->destroy(tmp->getTableName(), blankWhere);
+
+            if (tmp->mCommitFlag)
+                tmp->commit();
+        }
+
         /**
           * Remove record from table
           */
@@ -80,6 +123,7 @@ namespace ActiveRecord
             mAdapter->destroy(getTableName(), where);
             if (mCommitFlag)
                 commit();
+            mIsNew = true;
         }
 
         /**
@@ -187,15 +231,24 @@ namespace ActiveRecord
         }
 
     protected:
+        Model(std::map<std::string, std::string> attributes_I)
+        {
+            mAttributes = attributes_I;
+            mIsNew = false;
+            mCommitFlag = true;
+        }
+
         void initialize(std::string primary_I)
         {
             prepare();
             std::map<std::string, std::string> where = { {getPrimaryKey(), primary_I} };
-            mAttributes = mAdapter->get(getTableName(), where);
+            std::vector< std::map<std::string, std::string> > response;
+            response = mAdapter->get(getTableName(), where);
 
-            if (mAttributes.size() == 0) {
+            if (response.size() != 1) {
                 throw Exception::RecordNotFound(getTableName(), primary_I);
             }
+            mAttributes = response[0];
 
             mIsNew = false;
         }

@@ -10,6 +10,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include "exception.hpp"
 #include "../common.hpp"
 
@@ -38,6 +39,16 @@ namespace ActiveRecord
         common::Logger * getLogger ();
 
         /**
+          * enable/disable string quote
+          */
+        void enableQuote(bool);
+
+        /**
+          * quote value
+          */
+        virtual std::string quote(std::string) = 0;
+
+        /**
         * Get column info for table
         */
         virtual std::map<std::string, std::string> getColumns(std::string) = 0;
@@ -45,7 +56,7 @@ namespace ActiveRecord
         /**
         * Get Limited records where
         */
-        virtual std::map<std::string, std::string> get(std::string, std::map<std::string, std::string>) = 0;
+        virtual std::vector< std::map<std::string, std::string> > get(std::string, std::map<std::string, std::string>) = 0;
         /**
         * Update records where
         */
@@ -79,6 +90,7 @@ namespace ActiveRecord
         std::string mPrimaryKey;
 
         common::Logger* mLogger;
+        bool mQuoteFlag;
 
         void clear();
     };

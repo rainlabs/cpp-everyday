@@ -18,6 +18,7 @@ namespace ActiveRecord
         mPrimaryKey = "id";
 
         mConnect = nullptr;
+        mQuoteFlag = true;
     }
 
     Adapter::~Adapter()
@@ -38,6 +39,11 @@ namespace ActiveRecord
     common::Logger * Adapter::getLogger ()
     {
         return mLogger;
+    }
+
+    void Adapter::enableQuote(bool flag_I)
+    {
+        mQuoteFlag = flag_I;
     }
 
     void Adapter::clear()

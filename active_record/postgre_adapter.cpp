@@ -62,6 +62,13 @@ namespace ActiveRecord
         mWorker->abort();
     }
 
+    std::string PostgreAdapter::quote(std::string value_I)
+    {
+        if (mQuoteFlag)
+            return mWorker->quote(value_I);
+        return value_I;
+    }
+
     //SELECT column_name FROM information_schema.columns WHERE table_name = table_I
     std::map<std::string, std::string> PostgreAdapter::getColumns(std::string table_I)
     {
@@ -71,7 +78,7 @@ namespace ActiveRecord
         std::ostringstream query("");
         query
             << "SELECT column_name FROM information_schema.columns WHERE table_name = "
-            << mWorker->quote(table_I);
+            << quote(table_I);
 
         try {
             res = mWorker->exec(query.str());
@@ -90,22 +97,18 @@ namespace ActiveRecord
     }
 
     // SELECT * FROM table_I WHERE id = primary_I LIMIT 1
-    std::map<std::string, std::string> PostgreAdapter::get(std::string table_I, std::map<std::string, std::string> where_I)
+    std::vector< std::map<std::string, std::string> > PostgreAdapter::get(std::string table_I, std::map<std::string, std::string> where_I)
     {
-        std::map<std::string, std::string> result;
+        std::vector< std::map<std::string, std::string> > result;
+        std::map<std::string, std::string>* tmp;
         pqxx::result res;
 
         std::ostringstream query("");
         query
             << "SELECT * FROM "
-            << table_I
-            << " WHERE";
+            << table_I;
 
-        for(auto& it: where_I) {
-            if (it != *where_I.begin())
-                query << " AND";
-            query << " " << it.first << " = " << mWorker->quote(it.second);
-        }
+        query << makeWhere(where_I);
 
         try {
             res = mWorker->exec(query.str());
@@ -114,16 +117,11 @@ namespace ActiveRecord
             return result;
         }
 
-        if (res.size() > 0) {
-            for(auto it: res.begin()) {
-                std::cout << it.name() << " = '" << it.c_str() << "'" << std::endl;
-                result[it.name()] = it.c_str();
-            }
-        }
-        else {
+        result = parseResponse(res);
+
+        if (result.size() == 0) {
             mLogger->info("Record not found!");
         }
-        mLogger->debug( (char*)query.str().c_str() );
 
         return result;
     }
@@ -142,16 +140,10 @@ namespace ActiveRecord
             query
                 << it.first
                 << " = "
-                << mWorker->quote(it.second);
+                << quote(it.second);
         }
 
-        query << " WHERE";
-
-        for(auto& it: where_I) {
-            if (it != *where_I.begin())
-                query << " AND";
-            query << " " << it.first << " = " << mWorker->quote(it.second);
-        }
+        query << makeWhere(where_I);
 
         return tryQuery(query.str());
     }
@@ -162,14 +154,9 @@ namespace ActiveRecord
         std::ostringstream query("");
         query
             << "DELETE FROM "
-            << table_I
-            << " WHERE";
+            << table_I;
 
-        for(auto& it: where_I) {
-            if (it != *where_I.begin())
-                query << " AND";
-            query << " " << it.first << " = " << mWorker->quote(it.second);
-        }
+        query << makeWhere(where_I);
 
         return tryQuery(query.str());
     }
@@ -191,7 +178,7 @@ namespace ActiveRecord
         for (auto& it: attributes_I) {
             if(it != *attributes_I.begin())
                 query << ", ";
-            query << mWorker->quote(it.second);
+            query << quote(it.second);
         }
         query << ")";
 
@@ -212,5 +199,40 @@ namespace ActiveRecord
         }
 
         return true;
+    }
+
+    std::string PostgreAdapter::makeWhere(std::map<std::string, std::string> where_I)
+    {
+        std::ostringstream query("");
+
+        if (where_I.size() > 0) {
+            query << " WHERE";
+            for(auto& it: where_I) {
+                if (it != *where_I.begin())
+                    query << " AND";
+                query << " " << it.first << " = " << quote(it.second);
+            }
+        }
+
+        return query.str();
+    }
+
+    std::vector< std::map<std::string, std::string> > PostgreAdapter::parseResponse(pqxx::result response_I)
+    {
+        std::vector< std::map<std::string, std::string> > result;
+        std::map<std::string, std::string>* tmp;
+
+        if (response_I.size() > 0) {
+            for(auto it: response_I) {
+                tmp = new std::map<std::string, std::string>();
+                for(auto el: it) {
+                    std::cout << el.name() << " = '" << el.c_str() << "'" << std::endl;
+                    (*tmp)[el.name()] = el.c_str();
+                }
+                result.push_back( *tmp );
+            }
+        }
+
+        return result;
     }
 }
